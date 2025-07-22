@@ -1,6 +1,7 @@
 package org.example.panacea.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import lombok.extern.slf4j.Slf4j;
 import org.example.panacea.model.GameMessage;
 import org.example.panacea.pubsub.MessagePublisher;
 import org.springframework.messaging.handler.annotation.*;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
+@Slf4j
 @RestController
 public class GameController {
 
@@ -42,10 +44,11 @@ public class GameController {
         return roomPlayers.getOrDefault(roomId, List.of());
     }
 
-    @MessageMapping("/game.send") // listens to /app/game.send
+    @MessageMapping("/game.send/{roomId}") // listens to /app/game.send
     @Operation(summary = "WebSocket connection instructions")
-    public void sendGameMove(GameMessage message) {
-        String roomTopic = "/topic/room/" + message.getRoomId();
+    public void sendGameMove(@RequestBody GameMessage message, @DestinationVariable("roomId") String roomId) {
+        String roomTopic = "/topic/room/" + roomId;
+        log.info("Received message for Room {}", roomId);
         messagingTemplate.convertAndSend(roomTopic, message);
     }
 
