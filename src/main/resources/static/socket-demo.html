@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
+    <script>
+        const socket = new SockJS('/ws-game');
+        const stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function (frame) {
+            const roomId = "room123";
+
+            stompClient.subscribe('/topic/room/' + roomId, function (message) {
+                const gameMsg = JSON.parse(message.body);
+                console.log("Received: ", gameMsg);
+            });
+
+            stompClient.send("/app/game.send", {}, JSON.stringify({
+                type: "move",
+                player: "Alice",
+                roomId: roomId,
+                move: "left"
+            }));
+        });
+    </script>
+</head>
+<body>
+<h1>Socket Demo</h1>
+</body>
+</html>
