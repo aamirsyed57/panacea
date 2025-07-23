@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Socket Demo</title>
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
     <script
@@ -10,7 +10,6 @@
             integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
             crossorigin="anonymous"></script>
     <style>
-
         button {
             margin: 10px
         }
@@ -38,6 +37,11 @@
             overflow: scroll;
         }
 
+        .client-row {
+            width: 100%;
+            float: left;
+        }
+
     </style>
 </head>
 <script>
@@ -51,9 +55,9 @@
         console.log("Resetting Connect for Client " + id);
         delete stompClients[id];
         delete clientData[id];
-        $('#cn' + id).prop("disabled", false);
-        $('#sm'+id).html("Disconnected");
-        $('#out'+id).html("");
+        $('#client' + id + ' .cn').prop("disabled", false);
+        $('#client' + id + ' .sm').html("Disconnected");
+        $('#client' + id + ' .out').html("");
     }
 
     function disconnect(id) {
@@ -69,17 +73,18 @@
         if (stompClients[id] === undefined) {
             stompClients[id] = Stomp.over(new SockJS('/ws-game'));
             stompClients[id].connect({}, function (frame) {
-                    $('#cn' + id).prop("disabled", true);
-                    var roomId = $('#client' + id +' .roomId').val();
+                    $('#client' + id + ' .cn').prop("disabled", true);
+
+                    var roomId = $('#client' + id + ' .roomId').val();
                     console.log(roomId);
                     stompClients[id].subscribe('/topic/room/' + roomId, function (message) {
-                        clientDataUpdate(id,0,1);
+                        clientDataUpdate(id, 0, 1);
                         console.log(message);
                         var gameMsg = JSON.parse(message.body);
-                        $('#out' + id).append("<br>" + message.body);
+                        $('#client' + id + ' .out').append("<br>" + message.body);
                     });
-                    clientData[id] = {send:0,received:0};
-                    clientDataUpdate(id,0,0);
+                    clientData[id] = {send: 0, received: 0};
+                    clientDataUpdate(id, 0, 0);
                 },
                 function (message) {
                     resetClientConnect(id);
@@ -92,95 +97,99 @@
 
     function send(id) {
         if (stompClients[id] !== undefined) {
-            var roomId = $('#client' + id +' .roomId').val();
+            var roomId = $('#client' + id + ' .roomId').val();
             console.log(roomId);
-            var message = $('#in' + id).val();
+            var message = $('#client' + id + ' .in').val();
             console.log(stompClients[id]);
-            stompClients[id].send("/app/game.send/"+roomId, {}, message);
-            clientDataUpdate(id,1,0);
+            stompClients[id].send("/app/game.send/" + roomId, {}, message);
+            clientDataUpdate(id, 1, 0);
         } else {
             alert("Client " + id + ": Connection not set")
         }
     }
 
     function clientDataUpdate(id, sendIncr, receivedIncr) {
-        if(sendIncr > 0) {
+        if (sendIncr > 0) {
             clientData[id].send++;
         } else if (receivedIncr > 0) {
             clientData[id].received++;
         }
-        $('#sm'+id).html("Sent: "+clientData[id].send+", Received: "+clientData[id].received);
+        $('#client' + id + ' .sm').html("Sent: " + clientData[id].send + ", Received: " + clientData[id].received);
     }
 
 </script>
 <body>
 <h1>Socket Demo</h1>
 
-<div>
+<div class="client-row">
     <div class="client" id="client1">
         <div class="container">
-            <label>Client 1 Room:</label> <input class="roomId" type="text" value='room123'>
-            <button id="cn1" onclick="connect(1);">Connect</button>&nbsp;&nbsp;&nbsp;&nbsp;<button id="dcn1"
-                                                                                                   onclick="disconnect(1);">
-            Disconnect
-        </button>
+            Client 1 Room: <input class="roomId" type="text" value='room123'>
+            <button class="cn" onclick="connect(1);">Connect</button>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <button class="dcn" onclick="disconnect(1);">Disconnect</button>
             <br>
-            <label for="in1">Message: </label><textarea id="in1">{"type": "move", "player": "Alice","roomId": "room123","move": "left"}</textarea>
+            Message: <textarea
+                class="in">{"type": "move", "player": "Alice","roomId": "room123","move": "left"}</textarea>
             <br>
-            <button id="bt1" value="send" onclick="send(1)">Send</button>
-            <span id="sm1">Disconnected</span>
+            <button class="bt" onclick="send(1)">Send</button>
+            <span class="sm">Disconnected</span>
             <br>
-            <div class="out" id="out1"></div>
+            <div class="out"></div>
         </div>
     </div>
 
 
     <div class="client" id="client2">
         <div class="container">
-            <label>Client 2 Room:</label> <input class="roomId" type="text" value='room123'>
-            <button id="cn2" onclick="connect(2);">Connect</button>&nbsp;&nbsp;&nbsp;&nbsp;<button id="dcn2"
-                                                                                                   onclick="disconnect(2);">
-            Disconnect
-        </button>
+            Client 2 Room: <input class="roomId" type="text" value='room123'>
+            <button class="cn" onclick="connect(2);">Connect</button>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <button class="dcn" onclick="disconnect(2);">Disconnect</button>
             <br>
-            <label for="in2">Message: </label><textarea id="in2">{"type": "move", "player": "Brad","roomId": "room123","move": "right"}</textarea>
+            Message: <textarea
+                class="in">{"type": "move", "player": "Alice","roomId": "room123","move": "left"}</textarea>
             <br>
-            <button id="bt2" value="send" onclick="send(2)">Send</button>
-            <span id="sm2">Disconnected</span>
+            <button class="bt" onclick="send(2)">Send</button>
+            <span class="sm">Disconnected</span>
             <br>
-            <div class="out" id="out2"></div>
+            <div class="out"></div>
         </div>
     </div>
-    <br>
-
+</div>
+<div class="client-row">
     <div class="client" id="client3">
         <div class="container">
-            <label>Client 3 Room:</label> <input class="roomId" type="text" value='room123'>
-            <button id="cn3" onclick="connect(3);">Connect</button>
-            &nbsp;&nbsp;&nbsp;&nbsp;<button id="dcn3" onclick="disconnect(3);">Disconnect</button>
+            Client 3 Room: <input class="roomId" type="text" value='room123'>
+            <button class="cn" onclick="connect(3);">Connect</button>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <button class="dcn" onclick="disconnect(3);">Disconnect</button>
             <br>
-            <label for="in3">Message: </label><textarea id="in3">{"type": "move", "player": "Ram","roomId": "room124","move": "left"}</textarea>
+            Message: <textarea
+                class="in">{"type": "move", "player": "Alice","roomId": "room123","move": "left"}</textarea>
             <br>
-            <button id="bt3" value="send" onclick="send(3)">Send</button>
-            <span id="sm3">Disconnected</span>
+            <button class="bt" onclick="send(3)">Send</button>
+            <span class="sm">Disconnected</span>
             <br>
-            <div class="out" id="out3"></div>
+            <div class="out"></div>
         </div>
     </div>
 
 
     <div class="client" id="client4">
         <div class="container">
-            <label>Client 4 Room:</label> <input class="roomId" type="text" value='room123'>
-            <button id="cn4" onclick="connect(4);">Connect</button>
-            &nbsp;&nbsp;&nbsp;&nbsp;<button id="dcn4" onclick="disconnect(4);">Disconnect</button>
+            Client 4 Room: <input class="roomId" type="text" value='room123'>
+            <button class="cn" onclick="connect(4);">Connect</button>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <button class="dcn" onclick="disconnect(4);">Disconnect</button>
             <br>
-            <label for="in4">Message: </label><textarea id="in4">{"type": "move", "player": "Shyam","roomId": "room124","move": "right"}</textarea>
+            Message: <textarea
+                class="in">{"type": "move", "player": "Alice","roomId": "room123","move": "left"}</textarea>
             <br>
-            <button id="bt4" value="send" onclick="send(4)">Send</button>
-            <span id="sm4">Disconnected</span>
+            <button class="bt" onclick="send(4)">Send</button>
+            <span class="sm">Disconnected</span>
             <br>
-            <div class="out" id="out4"></div>
+            <div class="out"></div>
         </div>
     </div>
     <br>

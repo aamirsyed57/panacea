@@ -1,7 +1,7 @@
 package org.example.panacea.service;
 
 import org.example.panacea.entity.User;
-import org.example.panacea.repositories.UserRepository;
+import org.example.panacea.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;

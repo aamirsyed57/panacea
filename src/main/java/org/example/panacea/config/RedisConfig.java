@@ -1,5 +1,6 @@
 package org.example.panacea.config;
 
+import org.example.panacea.entity.User;
 import org.example.panacea.pubsub.MessageSubscriber;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,11 +29,7 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisMessageListenerContainer redisContainer(
-            RedisConnectionFactory connectionFactory,
-            MessageSubscriber subscriber,
-            ChannelTopic topic
-    ) {
+    public RedisMessageListenerContainer redisContainer(RedisConnectionFactory connectionFactory, MessageSubscriber subscriber, ChannelTopic topic) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
         container.addMessageListener(subscriber, topic);

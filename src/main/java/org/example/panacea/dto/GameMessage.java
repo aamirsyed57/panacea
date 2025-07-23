@@ -1,4 +1,4 @@
-package org.example.panacea.model;
+package org.example.panacea.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

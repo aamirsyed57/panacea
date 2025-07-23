@@ -2,8 +2,11 @@ package org.example.panacea.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
-import org.example.panacea.model.GameMessage;
+import org.example.panacea.dto.GameMessage;
+import org.example.panacea.dto.RoomInput;
+import org.example.panacea.entity.Room;
 import org.example.panacea.pubsub.MessagePublisher;
+import org.example.panacea.service.GameRoomService;
 import org.springframework.messaging.handler.annotation.*;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -18,24 +21,36 @@ public class GameController {
     private final MessagePublisher publisher;
 
     private final Map<String, List<String>> roomPlayers = new HashMap<>();
+    private final GameRoomService gameRoomService;
+    private int page;
+    private int size;
 
-    public GameController(SimpMessagingTemplate messagingTemplate, MessagePublisher publisher) {
+    public GameController(SimpMessagingTemplate messagingTemplate, MessagePublisher publisher, GameRoomService gameRoomService) {
         this.messagingTemplate = messagingTemplate;
         this.publisher = publisher;
+        this.gameRoomService = gameRoomService;
+    }
+
+    @PostMapping("/room")
+    @Operation(summary = "Join a game room")
+    public Room createRoom(@RequestBody RoomInput roomInput, @RequestHeader("X-User-Id") String userId) {
+        //roomPlayers.computeIfAbsent(roomId, k -> new ArrayList<>()).add(player);
+        return gameRoomService.createRoom(roomInput.name, userId);
     }
 
 
     @PostMapping("/join")
-    @Operation(summary = "Join a game room")
+    @Operation(summary = "Create a room for a game")
     public String joinRoom(@RequestParam String roomId, @RequestParam String player) {
         roomPlayers.computeIfAbsent(roomId, k -> new ArrayList<>()).add(player);
         return player + " joined " + roomId;
     }
 
-    @GetMapping("/rooms")
+    @GetMapping(value = "/rooms")
     @Operation(summary = "Get all game rooms")
-    public Set<String> listRooms() {
-        return roomPlayers.keySet();
+    public List<Room> listRooms(@RequestParam(required = false) Optional<Integer> page, @RequestParam(required = false) Optional<Integer> size) {
+        return gameRoomService.getAllRooms();
+        //return roomPlayers.keySet();
     }
 
     @GetMapping("/room/{roomId}/players")

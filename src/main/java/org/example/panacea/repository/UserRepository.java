@@ -1,4 +1,4 @@
-package org.example.panacea.repositories;
+package org.example.panacea.repository;
 
 import org.example.panacea.entity.User;
 import org.springframework.data.repository.CrudRepository;
