@@ -1,10 +1,9 @@
 package org.example.panacea.repository;
 
 import org.example.panacea.entity.User;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
-public interface UserRepository extends CrudRepository<User, String> {
-    List<User> findByName(String name);  // optional query method
+@Repository
+public interface UserRepository extends JpaRepository<User, Long> {
 }

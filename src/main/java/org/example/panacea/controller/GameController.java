@@ -22,8 +22,6 @@ public class GameController {
 
     private final Map<String, List<String>> roomPlayers = new HashMap<>();
     private final GameRoomService gameRoomService;
-    private int page;
-    private int size;
 
     public GameController(SimpMessagingTemplate messagingTemplate, MessagePublisher publisher, GameRoomService gameRoomService) {
         this.messagingTemplate = messagingTemplate;
@@ -32,9 +30,8 @@ public class GameController {
     }
 
     @PostMapping("/room")
-    @Operation(summary = "Join a game room")
+    @Operation(summary = "create a game room")
     public Room createRoom(@RequestBody RoomInput roomInput, @RequestHeader("X-User-Id") String userId) {
-        //roomPlayers.computeIfAbsent(roomId, k -> new ArrayList<>()).add(player);
         return gameRoomService.createRoom(roomInput.name, userId);
     }
 
@@ -50,7 +47,6 @@ public class GameController {
     @Operation(summary = "Get all game rooms")
     public List<Room> listRooms(@RequestParam(required = false) Optional<Integer> page, @RequestParam(required = false) Optional<Integer> size) {
         return gameRoomService.getAllRooms();
-        //return roomPlayers.keySet();
     }
 
     @GetMapping("/room/{roomId}/players")

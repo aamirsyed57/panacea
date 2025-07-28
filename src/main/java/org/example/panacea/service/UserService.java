@@ -1,33 +1,41 @@
 package org.example.panacea.service;
 
+import org.example.panacea.dto.UserInput;
 import org.example.panacea.entity.User;
 import org.example.panacea.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class UserService {
 
-    private final UserRepository userRepo;
+    private final UserRepository userRepository;
 
     public UserService(UserRepository userRepo) {
-        this.userRepo = userRepo;
+        this.userRepository = userRepo;
     }
 
-    public void save(User user) {
-        userRepo.save(user);
+    public User save(UserInput userInput) {
+        User newUser = new User();
+        newUser.setName(userInput.getName());
+        newUser.setEmail(userInput.getEmail());
+        return userRepository.save(newUser);
     }
 
-    public Optional<User> findById(String id) {
-        return userRepo.findById(id);
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
     }
 
-    public Iterable<User> findAll() {
-        return userRepo.findAll();
+    public List<User> findAll() {
+        List<User> users = new ArrayList<>();
+        userRepository.findAll().forEach(users::add);
+        return users;
     }
 
-    public void deleteById(String id) {
-        userRepo.deleteById(id);
+    public void deleteById(Long id) {
+        userRepository.deleteById(id);
     }
 }
